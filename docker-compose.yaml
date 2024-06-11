@@ -1,0 +1,43 @@
+version: '3'
+services:
+  first-envoy:
+    image: envoyproxy/envoy:v1.18-latest
+    volumes:
+      - ./envoy/envoy.yaml:/etc/envoy/envoy.yaml
+      - ./envoy/key.pem:/etc/envoy/key.pem
+      - ./envoy/cert.pem:/etc/envoy/cert.pem
+    network_mode: "service:first-ping-pong"
+  first-setup:
+    cap_add:
+      - NET_ADMIN
+    depends_on:
+      - first-envoy
+    image: setup:latest
+    network_mode: "service:first-ping-pong"
+  first-ping-pong:
+    environment:
+      - REMOTE_HOST_NAME=second-ping-pong
+      - THIS_SERVER_HOSTNAME=first-ping-pong
+    image: ping-pong-server:latest
+    hostname: first-ping-pong
+
+  second-envoy:
+    image: envoyproxy/envoy:v1.18-latest
+    volumes:
+      - ./envoy/envoy.yaml:/etc/envoy/envoy.yaml
+      - ./envoy/key.pem:/etc/envoy/key.pem
+      - ./envoy/cert.pem:/etc/envoy/cert.pem
+    network_mode: "service:second-ping-pong"
+  second-setup:
+    cap_add:
+      - NET_ADMIN
+    depends_on:
+      - second-envoy
+    image: setup:latest
+    network_mode: "service:second-ping-pong"
+  second-ping-pong:
+    environment:
+      - REMOTE_HOST_NAME=first-ping-pong
+      - THIS_SERVER_HOSTNAME=second-ping-pong
+    image: ping-pong-server:latest
+    hostname: second-ping-pong

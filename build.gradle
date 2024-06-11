@@ -1,0 +1,46 @@
+plugins {
+    id 'java'
+    id 'com.github.johnrengelman.shadow' version '7.1.2'
+}
+
+group = 'org.sandbox'
+version = '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
+
+shadowJar {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    archiveFileName = "app.jar"
+    archiveClassifier = 'fat'
+
+    manifest {
+        attributes(
+                'Implementation-Title': jar.archiveBaseName,
+                'Implementation-Version': archiveVersion,
+                'Multi-Release': 'true',
+                'Main-Class': 'org.sandbox.Main',
+        )
+    }
+    mergeServiceFiles()
+
+    with jar
+}
+
+dependencies {
+    implementation group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.23.1'
+    implementation group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.23.1'
+
+    implementation group: 'io.vertx', name: 'vertx-core', version: '4.5.8'
+    implementation group: 'io.vertx', name: 'vertx-web', version: '4.5.8'
+    implementation group: 'io.vertx', name: 'vertx-web-client', version: '4.5.8'
+
+    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.17.1'
+    implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.14.0'
+}
